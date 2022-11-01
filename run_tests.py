@@ -20,7 +20,6 @@ def main():
     params = ["-s"]
     if args.samples_path:
         params.append(f"--samples-path={args.samples_path}")
-        params.append("-m samplestest")
 
     pytest.main(params, plugins=[SamplesPlugin()])
 

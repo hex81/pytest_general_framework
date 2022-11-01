@@ -1,0 +1,21 @@
+---
+test_trtexec:
+- case_name: resnext101-fp32-bs32
+  parameters:
+    framework: caffe
+    model: ResNeXt101/ResNeXt101_fp32.caffemodel
+    deploy: ResNeXt101/ResNeXt101_N2.prototxt
+    output: prob
+    inputIOFormats: fp16:chw
+    outputIOFormats: fp16:chw
+    fp32: true 
+    batch_size: 32
+- case_name: srgan_bug_200410963
+  parameters:
+    framework: onnx
+    model: RCCAData/srgan_bug_200410963.onnx
+    optShapes: data:5x5x3x256x256
+    minShapes: data:1x5x3x256x256
+    maxShapes: data:10x5x3x256x256
+    fp16: true
+    batch_size: 32

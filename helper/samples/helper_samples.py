@@ -3,22 +3,25 @@ samples helper
 """
 
 from common.logger import logger
-from utils.run_cmd import run_cmd
+from utils.command import Command
+
+import os
+
 
 class HelperSamples:
 
     def __init__(self, sample_path):
         self.logger = logger
+        self.command = Command()
         self.sample_path = sample_path
-        self.bin_path = f"{sample_path}/../bin"
+        self.run_type = 'check_output'
 
-    def run_sample(self, cmd):
-        self.logger.info(f'Run sample: {cmd}')
-        result, message = run_cmd(self.bin_path, cmd)
+    def run_cmd(self, path, cmd):
+        self.logger.info('Run sample %s', cmd)
+        run_path = os.path.join(self.sample_path, path)
+        if "python" in run_path:
+            cmd = f"pip3 install -r requirements.txt && python3 {cmd}"
 
-        if result:
-            self.logger.info(message)
-        else:
-            self.logger.error(message)
-        
+        result, message = self.command.run_cmd(run_path, cmd, self.run_type)
+
         return result, message
