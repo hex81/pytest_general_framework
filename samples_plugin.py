@@ -3,8 +3,29 @@ samples plugin
 '''
 
 import pytest
+import os
 
 from utils.command import Command
+from common.logger import logger
+
+
+class HelperSamples:
+
+    def __init__(self, sample_path):
+        self.logger = logger
+        self.command = Command()
+        self.sample_path = sample_path
+        self.run_type = 'check_output'
+
+    def run_cmd(self, path, cmd):
+        self.logger.info('Run sample %s', cmd)
+        run_path = os.path.join(self.sample_path, path)
+        if "python" in run_path:
+            cmd = f"pip3 install -r requirements.txt && python3 {cmd}"
+
+        result, message = self.command.run_cmd(run_path, cmd, self.run_type)
+
+        return result, message
 
 
 class SamplesPlugin:
@@ -16,11 +37,13 @@ class SamplesPlugin:
             help="Run samples test.")
 
     def pytest_configure(self, config):
-        config.addinivalue_line("markers", "samples: this one is for samples tests.")
+        config.addinivalue_line(
+            "markers", "samples: this one is for samples tests.")
 
     def pytest_collection_modifyitems(self, config, items):
         if not config.getoption("--samples-path"):
-            skip_samples = pytest.mark.skip(reason="need --samples-path option to run")
+            skip_samples = pytest.mark.skip(
+                reason="need --samples-path option to run")
             for item in items:
                 if item.get_closest_marker("samples"):
                     item.add_marker(skip_samples)
@@ -35,15 +58,19 @@ class SamplesPlugin:
         Get sample list
         """
 
-        result, mesg = Command.run_cmd(path=samples_path, cmd="make", run_type='run')
+        result, mesg = Command.run_cmd(
+            path=samples_path, cmd="make", run_type='run')
         if not result:
             raise Exception("Compile samples failure.")
 
         result, mesg = Command.run_cmd(path=f"{samples_path}/../python",
-            cmd="./python_setup.sh", run_type='run')
+                                       cmd="./python_setup.sh", run_type='run')
         if not result:
             raise Exception("python setup failure.")
 
+    @pytest.fixture(autouse=True)
+    def samples_helper(self, samples_path):
+        return HelperSamples(samples_path)
 
     # def pytest_generate_tests(self, metafunc):
     #     samples_path = metafunc.config.getoption('--samples-path')

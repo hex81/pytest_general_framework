@@ -9,7 +9,7 @@ test_trtexec:
     inputIOFormats: fp16:chw
     outputIOFormats: fp16:chw
     fp32: true 
-    batch_size: 32
+    batch: 32
 - case_name: srgan_bug_200410963
   parameters:
     framework: onnx
@@ -18,4 +18,3 @@ test_trtexec:
     minShapes: data:1x5x3x256x256
     maxShapes: data:10x5x3x256x256
     fp16: true
-    batch_size: 32

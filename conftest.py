@@ -29,7 +29,7 @@ def pytest_configure(config):
     )
 
 def pytest_addoption(parser):
-        parser.addoption(
+            parser.addoption(
             "--data-path", action="store",
             default="/mnt/data",
             help="Run samples test.")

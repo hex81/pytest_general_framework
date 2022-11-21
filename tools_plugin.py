@@ -1,12 +1,9 @@
-"""
-tools helper
-"""
-
-from common.logger import logger
-from utils.command import Command
-
 import os
 import tempfile
+import pytest
+
+from utils.command import Command
+from common.logger import logger
 
 
 class HelperTrtexec:
@@ -30,7 +27,7 @@ class HelperTrtexec:
                     param = f"--{v}={model_file}"
                 elif k == 'deploy':
                     deploy_file = os.path.join(self.data_path,
-                                            test_case['parameters'].get('deploy'))
+                                               test_case['parameters'].get('deploy'))
                     param = f"--{k}={deploy_file}"
                 elif isinstance(v, bool) and v is True:
                     param = f"--{k}"
@@ -45,6 +42,14 @@ class HelperTrtexec:
         self.cmd = " ".join([self.cmd, self.build_command(test_case)])
         self.logger.info('Run command: %s', self.cmd)
         with tempfile.TemporaryDirectory() as tmpdirname:
-            result, message = self.command.run_cmd(tmpdirname, self.cmd, self.run_type)
+            result, message = self.command.run_cmd(
+                tmpdirname, self.cmd, self.run_type)
 
         return result, message
+
+
+class ToolsPlugin:
+    """ Tools plugin """
+    @pytest.fixture(autouse=True)
+    def trtexec_helper(self, data_path):
+        return HelperTrtexec(data_path)
