@@ -1,0 +1,21 @@
+---
+test_plan:
+- cuda: [11.4]
+  cases:
+  - api/testcases/test_api.py::TestAPI::test_api_example
+  - api/testcases/test_api.py::TestAPI::test_api_skip_sbsa
+  - samples/testcases/test_samples.py::TestSamples::test_cpp_samples[sample_char_rnn]
+  - samples/testcases/test_samples.py::TestSamples::test_cpp_samples[sample_io_formats]
+  - tools/testcases/test_trtexec.py::TestTRTexec::test_trtexec[resnext101-fp32-bs32]
+- cuda: [11.8]
+  cases:
+  - api/testcases/test_api.py::TestAPI::test_api_example
+  - api/testcases/test_api.py::TestAPI::test_api_smoke
+  - api/testcases/test_api.py::TestAPI::test_api_skip_x86
+  - api/testcases/test_api.py::TestAPI::test_api_skip_sbsa
+  - samples/testcases/test_samples.py::TestSamples::test_cpp_samples[sample_algorithm_selector]
+  - samples/testcases/test_samples.py::TestSamples::test_cpp_samples[sample_dynamic_reshape]
+  - samples/testcases/test_samples.py::TestSamples::test_cpp_samples[sample_int8_api]
+  - samples/testcases/test_samples.py::TestSamples::test_cpp_samples[sample_onnx_mnist]
+  - samples/testcases/test_samples.py::TestSamples::test_python_samples_network_api_pytorch_mnist
+  - tools/testcases/test_trtexec.py::TestTRTexec::test_trtexec[srgan_bug_200410963]

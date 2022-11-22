@@ -71,19 +71,3 @@ class SamplesPlugin:
     @pytest.fixture(autouse=True)
     def samples_helper(self, samples_path):
         return HelperSamples(samples_path)
-
-    # def pytest_generate_tests(self, metafunc):
-    #     samples_path = metafunc.config.getoption('--samples-path')
-    #     if "sample" in metafunc.fixturenames:
-
-    #         self.compile_samples(samples_path)
-
-    #         cmd = f"cd {samples_path}/../bin; ls | grep sample | grep -v debug"
-    #         try:
-    #             res = subprocess.check_output(cmd, shell=True)
-    #         except subprocess.CalledProcessError as call_e:
-    #             print(call_e.output.decode(encoding="utf-8"))
-    #         else:
-    #             samples = res.decode(encoding='utf-8').strip().split("\n")
-
-    #         metafunc.parametrize("sample", samples)

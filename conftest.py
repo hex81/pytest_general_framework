@@ -7,6 +7,8 @@ import os
 import yaml
 import pytest
 
+from utils.cuda import get_cuda_version
+
 
 @pytest.fixture
 def arch():
@@ -28,15 +30,58 @@ def pytest_configure(config):
         "markers", "skip_arch(arch): skip test for the given search engine",
     )
 
+
 def pytest_addoption(parser):
-            parser.addoption(
-            "--data-path", action="store",
-            default="/mnt/data",
-            help="Run samples test.")
+    parser.addoption(
+        "--data-path", action="store",
+        default="/mnt/data",
+        help="Run samples test.")
+    parser.addoption(
+        "--test-plan", action="store",
+        help="Run test plan.")
+
 
 @pytest.fixture(scope="session")
 def data_path(request):
     return request.config.getoption("--data-path")
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_collection_modifyitems(config, items):
+    test_plan = config.getoption("--test-plan")
+    if test_plan:
+        test_file = os.path.join(f'{config.rootdir}/test_plan', test_plan)
+        selected = []
+        deselected = []
+
+        with open(test_file, "r", encoding="utf-8") as stream:
+            try:
+                data = yaml.safe_load(stream)
+            except yaml.YAMLError as exc:
+                print(exc)
+
+        cuda_version = get_cuda_version()
+
+        plans = data.get('test_plan')
+        for plan in plans:
+            cases = plan.get('cases')
+            if cuda_version in plan.get('cuda'):
+                for item in items:
+                    if item.nodeid in cases:
+                        selected.append(item)
+            else:
+                for item in items:
+                    if item.nodeid in cases:
+                        deselected.append(item)
+
+        print(deselected)
+        print(selected)
+
+        config.hook.pytest_deselected(items=deselected)
+        items[:] = selected
+
+    yield
+
 
 def pytest_runtest_setup(item):
     """
@@ -46,7 +91,6 @@ def pytest_runtest_setup(item):
     Returns:
     """
     config = item.config
-    # log_dir = item.location[0].rsplit("/", 1)[0]
     log_dir = config.rootpath
     logging_plugin = config.pluginmanager.get_plugin("logging-plugin")
     report_file = os.path.join(f"{log_dir}/logs",
@@ -68,7 +112,6 @@ def pytest_generate_tests(metafunc):
         path_list.append(test_data_file)
         data_file = os.path.join(*tuple(path_list))
         data_file = os.path.join(metafunc.config.rootdir, data_file)
-        print(data_file)
         with open(data_file, "r", encoding="utf-8") as stream:
             try:
                 data = yaml.safe_load(stream)
